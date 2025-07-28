@@ -12,7 +12,7 @@ esp_now_peer_info_t peerInfo;
 uint8_t receiver[] = { 0x08, 0xa6, 0xf7, 0x17, 0x6d, 0x84 }; // ESP32_薄
 // uint8_t receiver[] = { 0x2c, 0xbc, 0xbb, 0x00, 0x52, 0xd4 }; // ESP32_厚
 
-#define DEBUG
+// #define DEBUG
 
 #define SDA_PIN 18
 #define SCL_PIN 23
