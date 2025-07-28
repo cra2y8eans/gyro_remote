@@ -31,6 +31,12 @@ typedef struct {
 } Gyro_t;
 Gyro_t Gyro_data;
 
+typedef struct {
+  float P_roll, I_roll, D_roll,
+      P_pitch, I_pitch, D_pitch; // PID参数
+} Angle_t;
+Angle_t PID;
+
 MPU6050           mpu6050(Wire);
 SemaphoreHandle_t mpu6050Mutex = NULL;
 
@@ -52,6 +58,56 @@ void SerialPrint() {
   Serial.printf("Pitch: %.2f, Gyro Pitch: %.2f\n", Gyro_data.angle_pitch, Gyro_data.gyro_pitch);
   xSemaphoreGive(mpu6050Mutex);
   vTaskDelay(100);
+}
+
+// PID调参
+void PID_value_set(void* pvParameters) {
+  float step = 0.5;
+  while (1) {
+    if (Serial.available()) {
+      char c = Serial.read();
+      switch (c) {
+      case 'w': // 增加P
+        PID.P_roll += step;
+        // PID.P_pitch += step;
+        Serial.printf("P_roll: %.2f, I_roll: %.2f, D_roll: %.2f\n", PID.P_roll, PID.I_roll, PID.D_roll);
+        break;
+      case 's': // 减少P
+        PID.P_roll -= step;
+        // PID.P_pitch -= step;
+        Serial.printf("P_roll: %.2f, I_roll: %.2f, D_roll: %.2f\n", PID.P_roll, PID.I_roll, PID.D_roll);
+        break;
+      case 'a': // 增加I
+        PID.I_roll += step;
+        // PID.I_pitch += step;
+        Serial.printf("P_roll: %.2f, I_roll: %.2f, D_roll: %.2f\n", PID.P_roll, PID.I_roll, PID.D_roll);
+        break;
+      case 'd': // 减少I
+        PID.I_roll -= step;
+        // PID.I_pitch -= step;
+        Serial.printf("P_roll: %.2f, I_roll: %.2f, D_roll: %.2f\n", PID.P_roll, PID.I_roll, PID.D_roll);
+        break;
+      case 'q': // 增加D
+        PID.D_roll += step;
+        // PID.D_pitch += step;
+        Serial.printf("P_roll: %.2f, I_roll: %.2f, D_roll: %.2f\n", PID.P_roll, PID.I_roll, PID.D_roll);
+        break;
+      case 'e': // 减少D
+        PID.D_roll -= step;
+        // PID.D_pitch -= step;
+        Serial.printf("P_roll: %.2f, I_roll: %.2f, D_roll: %.2f\n", PID.P_roll, PID.I_roll, PID.D_roll);
+        break;
+      default:
+        break;
+      }
+    }
+    if (PID.P_roll < 0) PID.P_roll = 0;
+    if (PID.I_roll < 0) PID.I_roll = 0;
+    if (PID.D_roll < 0) PID.D_roll = 0;
+    if (PID.P_pitch < 0) PID.P_pitch = 0;
+    if (PID.I_pitch < 0) PID.I_pitch = 0;
+    if (PID.D_pitch < 0) PID.D_pitch = 0;
+  }
 }
 
 // 读取数据
@@ -112,7 +168,8 @@ void setup() {
 
   mpu6050Mutex = xSemaphoreCreateMutex();
   xTaskCreate(getGyroData, "getGyroData", 2048, NULL, 1, NULL);
-  xTaskCreate(sendData, "sendData", 2048, NULL, 1, NULL); // 创建获取陀螺仪数据的任务
+  xTaskCreate(sendData, "sendData", 2048, NULL, 1, NULL);
+  xTaskCreate(PID_value_set, "PID_value_set", 2048, NULL, 1, NULL);
 }
 
 void loop() {
