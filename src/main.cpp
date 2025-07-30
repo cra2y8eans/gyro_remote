@@ -13,7 +13,6 @@ uint8_t receiver[] = { 0x08, 0xa6, 0xf7, 0x17, 0x6d, 0x84 }; // ESP32_薄
 // uint8_t receiver[] = { 0x2c, 0xbc, 0xbb, 0x00, 0x52, 0xd4 }; // ESP32_厚
 
 // #define DEBUG
-
 #define SDA_PIN 18
 #define SCL_PIN 23
 #define ALPHA 0.1
@@ -68,8 +67,12 @@ void sendGyroData(void* pvParameters) {
     roll_raw             = mpu6050.getAngleY();
     GyroServoAngle.roll  = map(roll_raw, -180, 180, 0, 120);
     GyroServoAngle.pitch = map(pitch_raw, -180, 180, 0, 120);
+
+#ifdef DEBUG
     Serial.printf("roll: %.2f", GyroServoAngle.roll);
     Serial.printf("        pitch: %.2f\n", GyroServoAngle.pitch);
+#endif
+
     // 发送数据
     esp_now_send(receiver, (uint8_t*)&GyroServoAngle, sizeof(GyroServoAngle));
     vTaskDelayUntil(&xLastWakeTime, xPeriod);
