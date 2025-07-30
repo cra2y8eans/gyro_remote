@@ -64,10 +64,12 @@ void sendGyroData(void* pvParameters) {
   while (1) {
     float pitch_raw, roll_raw;
     mpu6050.update();
-    pitch_raw           = mpu6050.getAngleX();
-    roll_raw            = mpu6050.getAngleY();
-    GyroServoAngle.roll = map(roll_raw, -180, 180, 0, 120);
-    Serial.printf("roll: %.2f\n", GyroServoAngle.roll);
+    pitch_raw            = mpu6050.getAngleX();
+    roll_raw             = mpu6050.getAngleY();
+    GyroServoAngle.roll  = map(roll_raw, -180, 180, 0, 120);
+    GyroServoAngle.pitch = map(pitch_raw, -180, 180, 0, 120);
+    Serial.printf("roll: %.2f", GyroServoAngle.roll);
+    Serial.printf("        pitch: %.2f\n", GyroServoAngle.pitch);
     // 发送数据
     esp_now_send(receiver, (uint8_t*)&GyroServoAngle, sizeof(GyroServoAngle));
     vTaskDelayUntil(&xLastWakeTime, xPeriod);
