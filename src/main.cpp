@@ -42,6 +42,7 @@ void OnDataRecv(const uint8_t* mac, const uint8_t* data, int len) {
 void SerialPrint(float roll, float pitch) {
   Serial.printf("Roll: %.2f\n", roll);
   // Serial.printf("Pitch: %.2f", pitch);
+  // Serial.printf("roll gyro: %.2f\n", mpu6050.getGyroY());
 }
 
 // 发送数据
@@ -62,12 +63,25 @@ void sendGyroData(void* pvParameters) {
   const TickType_t xPeriod       = pdMS_TO_TICKS(10); // 频率 100Hz → 周期为 1/100 = 0.01 秒 = 10 毫秒
 
   while (1) {
-    float pitch_raw, roll_raw;
+    float pitch_raw, roll_raw, pitch_gyro, roll_gyro;
     mpu6050.update();
-    pitch_raw            = mpu6050.getAngleX();
-    roll_raw             = mpu6050.getAngleY();
-    GyroServoAngle.roll  = map(roll_raw, -180, 180, 0, 120);
-    GyroServoAngle.pitch = map(pitch_raw, -180, 180, 0, 120);
+    pitch_raw = map(mpu6050.getAngleX(), -180, 180, 0, 120);
+    roll_raw  = map(mpu6050.getAngleY(), -180, 180, 0, 120);
+    if (roll_raw > 62) {
+      GyroServoAngle.roll = roll_raw + (roll_raw - 60) * 2;
+    } else if (roll_raw < 58) {
+      GyroServoAngle.roll = roll_raw - (60 - roll_raw) * 2;
+    } else {
+      GyroServoAngle.roll = roll_raw;
+    }
+
+    if (pitch_raw > 62) {
+      GyroServoAngle.pitch = pitch_raw + (pitch_raw - 60) * 2;
+    } else if (pitch_raw < 58) {
+      GyroServoAngle.pitch = pitch_raw - (60 - pitch_raw) * 2;
+    } else {
+      GyroServoAngle.pitch = pitch_raw;
+    }
 
 #ifdef DEBUG
     Serial.printf("roll: %.2f", GyroServoAngle.roll);
