@@ -68,17 +68,17 @@ void sendGyroData(void* pvParameters) {
     pitch_raw = map(mpu6050.getAngleX(), -180, 180, 0, 120);
     roll_raw  = map(mpu6050.getAngleY(), -180, 180, 0, 120);
     if (roll_raw > 62) {
-      GyroServoAngle.roll = roll_raw + (roll_raw - 60) * 2;
+      GyroServoAngle.roll = roll_raw + (roll_raw - 60) * 1.5;
     } else if (roll_raw < 58) {
-      GyroServoAngle.roll = roll_raw - (60 - roll_raw) * 2;
+      GyroServoAngle.roll = roll_raw - (60 - roll_raw) * 1.5;
     } else {
       GyroServoAngle.roll = roll_raw;
     }
 
     if (pitch_raw > 62) {
-      GyroServoAngle.pitch = pitch_raw + (pitch_raw - 60) * 2;
+      GyroServoAngle.pitch = pitch_raw + (pitch_raw - 60) * 1.5;
     } else if (pitch_raw < 58) {
-      GyroServoAngle.pitch = pitch_raw - (60 - pitch_raw) * 2;
+      GyroServoAngle.pitch = pitch_raw - (60 - pitch_raw) * 1.5;
     } else {
       GyroServoAngle.pitch = pitch_raw;
     }
